@@ -1,0 +1,240 @@
+-- ========================================================
+-- SCRIPT: CHỨC NĂNG DƯA HẤU MÚP RỤP & PHÁT NỔ ("???")
+-- Tương thích: Delta X / Mobile Executors / PC
+-- ========================================================
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local Debris = game:GetService("Debris")
+local LocalPlayer = Players.LocalPlayer
+
+-----------------------------------------------------------
+-- 1. TẠO NÚT BẤM UI "???"
+-----------------------------------------------------------
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "CustomFunctionGui"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+local MainButton = Instance.new("TextButton")
+MainButton.Name = "BtnQuestion"
+MainButton.Size = UDim2.new(0, 80, 0, 80)
+MainButton.Position = UDim2.new(0.85, -40, 0.5, -40)
+MainButton.BackgroundColor3 = Color3.fromRGB(255, 45, 85)
+MainButton.Text = "???"
+MainButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+MainButton.TextSize = 28
+MainButton.Font = Enum.Font.FredokaOne
+MainButton.Active = true
+MainButton.Draggable = true -- Có thể kéo di chuyển trên màn hình điện thoại
+MainButton.Parent = ScreenGui
+
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0.5, 0) -- Làm nút hình tròn
+UICorner.Parent = MainButton
+
+local UIStroke = Instance.new("UIStroke")
+UIStroke.Thickness = 3
+UIStroke.Color = Color3.fromRGB(255, 255, 255)
+UIStroke.Parent = MainButton
+
+-----------------------------------------------------------
+-- 2. HÀM XỬ LÝ HIỆU ỨNG
+-----------------------------------------------------------
+local isRunning = false
+
+local function RunWatermelonEffect()
+    if isRunning then return end
+    isRunning = true
+
+    local character = LocalPlayer.Character
+    if not character or not character:FindFirstChild("HumanoidRootPart") then 
+        isRunning = false
+        return 
+    end
+    
+    local hrp = character.HumanoidRootPart
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    if not humanoid or humanoid.Health <= 0 then 
+        isRunning = false
+        return 
+    end
+
+    -------------------------------------------------------
+    -- BƯỚC 1: XUẤT HIỆN DƯA HẤU TRÒN + TÊN "dưa hấu múp rụp"
+    -------------------------------------------------------
+    local watermelon = Instance.new("Part")
+    watermelon.Name = "DuaHauMupRup"
+    watermelon.Shape = Enum.PartType.Ball
+    watermelon.Size = Vector3.new(3, 3, 3)
+    watermelon.Color = Color3.fromRGB(34, 139, 34) -- Màu xanh dưa hấu
+    watermelon.Material = Enum.Material.SmoothPlastic
+    watermelon.CFrame = hrp.CFrame * CFrame.new(0, -0.5, -3.5)
+    watermelon.Anchored = true
+    watermelon.CanCollide = false
+    watermelon.Parent = workspace
+
+    -- Chữ "dưa hấu múp rụp" nổi trên quả dưa
+    local bbGui = Instance.new("BillboardGui")
+    bbGui.Size = UDim2.new(0, 200, 0, 50)
+    bbGui.StudsOffset = Vector3.new(0, 2, 0)
+    bbGui.AlwaysOnTop = true
+    bbGui.Parent = watermelon
+
+    local textLabel = Instance.new("TextLabel")
+    textLabel.Size = UDim2.new(1, 0, 1, 0)
+    textLabel.BackgroundTransparency = 1
+    textLabel.Text = "dưa hấu múp rụp"
+    textLabel.TextColor3 = Color3.fromRGB(255, 50, 50)
+    textLabel.TextScaled = true
+    textLabel.Font = Enum.Font.FredokaOne
+    textLabel.TextStrokeTransparency = 0
+    textLabel.Parent = bbGui
+
+    -- Hiệu ứng ăn (thu nhỏ quả dưa hấu từ từ)
+    for i = 1, 6 do
+        watermelon.Size = watermelon.Size - Vector3.new(0.5, 0.5, 0.5)
+        task.wait(0.15)
+    end
+    watermelon:Destroy()
+
+    -------------------------------------------------------
+    -- BƯỚC 2: CHỮ "ahhhhhhhhhh" TRÊN ĐẦU (1.5 GIÂY)
+    -------------------------------------------------------
+    local head = character:FindFirstChild("Head")
+    if head then
+        local ahhGui = Instance.new("BillboardGui")
+        ahhGui.Size = UDim2.new(0, 220, 0, 60)
+        ahhGui.StudsOffset = Vector3.new(0, 2.5, 0)
+        ahhGui.AlwaysOnTop = true
+        ahhGui.Parent = head
+
+        local ahhText = Instance.new("TextLabel")
+        ahhText.Size = UDim2.new(1, 0, 1, 0)
+        ahhText.BackgroundTransparency = 1
+        ahhText.Text = "ahhhhhhhhhh"
+        ahhText.TextColor3 = Color3.fromRGB(255, 230, 0)
+        ahhText.TextScaled = true
+        ahhText.Font = Enum.Font.SourceSansBold
+        ahhText.TextStrokeTransparency = 0
+        ahhText.Parent = ahhGui
+
+        Debris:AddItem(ahhGui, 1.5)
+    end
+
+    task.wait(1.5)
+
+    -------------------------------------------------------
+    -- BƯỚC 3: BAY LÊN CAO + DƠ 2 TAY RA 2 BÊN
+    -------------------------------------------------------
+    -- Bay lên cao
+    local bodyVelocity = Instance.new("BodyVelocity")
+    bodyVelocity.MaxForce = Vector3.new(0, 400000, 0)
+    bodyVelocity.Velocity = Vector3.new(0, 18, 0) -- Tốc độ bay lên
+    bodyVelocity.Parent = hrp
+
+    -- Khớp vai dang 2 tay sang 2 bên
+    local leftShoulder = character:FindFirstChild("Left Shoulder", true) or character:FindFirstChild("LeftShoulder", true)
+    local rightShoulder = character:FindFirstChild("Right Shoulder", true) or character:FindFirstChild("RightShoulder", true)
+
+    local origC0Left, origC0Right
+    if leftShoulder then
+        origC0Left = leftShoulder.C0
+        leftShoulder.C0 = leftShoulder.C0 * CFrame.Angles(0, 0, math.rad(-90))
+    end
+    if rightShoulder then
+        origC0Right = rightShoulder.C0
+        rightShoulder.C0 = rightShoulder.C0 * CFrame.Angles(0, 0, math.rad(90))
+    end
+
+    -------------------------------------------------------
+    -- BƯỚC 4: HIỆU ỨNG AURA & SẤM SÉT ĐÁNH ĐÙNG ĐÙNG
+    -------------------------------------------------------
+    -- Aura bao quanh người
+    local aura = Instance.new("Highlight")
+    aura.FillColor = Color3.fromRGB(0, 255, 255)
+    aura.OutlineColor = Color3.fromRGB(255, 255, 255)
+    aura.FillTransparency = 0.2
+    aura.Parent = character
+
+    local particle = Instance.new("ParticleEmitter")
+    particle.Texture = "rbxassetid://243664672"
+    particle.Color = ColorSequence.new(Color3.fromRGB(0, 255, 255), Color3.fromRGB(255, 255, 255))
+    particle.Size = NumberSequence.new(2, 4)
+    particle.Rate = 60
+    particle.Speed = NumberRange.new(6, 12)
+    particle.Parent = hrp
+
+    -- Sấm sét đánh xung quanh trong 2 giây
+    local lightningThread = task.spawn(function()
+        for i = 1, 10 do
+            local bolt = Instance.new("Part")
+            bolt.Size = Vector3.new(0.6, 30, 0.6)
+            bolt.Color = Color3.fromRGB(255, 255, 120)
+            bolt.Material = Enum.Material.Neon
+            bolt.Anchored = true
+            bolt.CanCollide = false
+            
+            local offset = Vector3.new(math.random(-10, 10), 10, math.random(-10, 10))
+            bolt.CFrame = CFrame.new(hrp.Position + offset) * CFrame.Angles(math.rad(math.random(-25, 25)), 0, math.rad(math.random(-25, 25)))
+            bolt.Parent = workspace
+            Debris:AddItem(bolt, 0.12)
+
+            task.wait(0.2)
+        end
+    end)
+
+    -------------------------------------------------------
+    -- BƯỚC 5: PHÁT NỔ SAU 2 GIÂY & HẤT VĂNG NGƯỜI CHƠI KHÁC
+    -------------------------------------------------------
+    task.wait(2)
+
+    -- Hiệu ứng vụ nổ
+    local explosion = Instance.new("Explosion")
+    explosion.Position = hrp.Position
+    explosion.BlastRadius = 40
+    explosion.BlastPressure = 0 -- Tránh kill người chơi nếu map cấm
+    explosion.DestroyPartRadiusHit = 0
+    explosion.Parent = workspace
+
+    -- Hất văng người chơi khác trong bán kính 40 studs
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            local otherHrp = player.Character.HumanoidRootPart
+            local distance = (otherHrp.Position - hrp.Position).Magnitude
+            
+            if distance <= 40 then
+                local pushDirection = (otherHrp.Position - hrp.Position).Unit
+                local bodyPush = Instance.new("BodyVelocity")
+                bodyPush.MaxForce = Vector3.new(1e6, 1e6, 1e6)
+                -- Lực hất văng cực mạnh ra xa và lên cao
+                bodyPush.Velocity = (pushDirection * 150) + Vector3.new(0, 80, 0)
+                bodyPush.Parent = otherHrp
+                Debris:AddItem(bodyPush, 0.5)
+            end
+        end
+    end
+
+    -- Phát nổ bản thân & dọn dẹp hiệu ứng
+    bodyVelocity:Destroy()
+    aura:Destroy()
+    particle:Destroy()
+    
+    if humanoid then 
+        humanoid.Health = 0 -- Reset nhân vật khi phát nổ
+    end
+
+    -- Trả lại góc vai ban đầu
+    if leftShoulder and origC0Left then leftShoulder.C0 = origC0Left end
+    if rightShoulder and origC0Right then rightShoulder.C0 = origC0Right end
+
+    task.wait(2)
+    isRunning = false
+end
+
+-----------------------------------------------------------
+-- KẾT NỐI SỰ KIỆN NÚT BẤM
+-----------------------------------------------------------
+MainButton.MouseButton1Click:Connect(function()
+    RunWatermelonEffect()
+end)
